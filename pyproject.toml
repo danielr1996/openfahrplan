@@ -1,0 +1,36 @@
+[project]
+name = "openfahrplan"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Daniel Richter",email = "me@danielrichter.codes"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+packages = [{ include = "src" }]
+dependencies = [
+    "pandas (>=2.3.2,<3.0.0)",
+    "gtfs-kit (>=10.3.1,<11.0.0)",
+    "rapidfuzz (>=3.14.1,<4.0.0)",
+#    "partridge (>=1.1.2,<2.0.0)",
+#    "geopandas (>=1.1.1,<2.0.0)",
+#    "pyproj (>=3.7.2,<4.0.0)",
+#    "shapely (>=2.1.1,<3.0.0)",
+#    "typer (>=0.17.4,<0.18.0)",
+#    "matplotlib (>=3.10.6,<4.0.0)",
+#    "cartopy (>=0.25.0,<0.26.0)",
+#    "contextily (>=1.6.2,<2.0.0)",
+    "dash (>=3.2.0,<4.0.0)",
+#    "dash-leaflet (>=1.1.3,<2.0.0)",
+#    "pyhafas (>=0.6.1,<0.7.0)",
+    "requests (>=2.32.5,<3.0.0)",
+    "beautifulsoup4 (>=4.13.5,<5.0.0)",
+    "openai (>=1.107.3,<2.0.0)",
+]
+
+[tool.poetry.scripts]
+openfahrplan = "src.__main__:main"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
