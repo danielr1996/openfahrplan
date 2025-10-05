@@ -12,7 +12,9 @@ RUN pip install "poetry==${POETRY_VERSION}"
 COPY pyproject.toml poetry.lock README.md ./
 COPY src/ src/
 COPY data/ data/
-RUN poetry install
+RUN pip install --upgrade pip build \
+ && python -m build --wheel \
+ && pip install --no-cache-dir dist/*.whl
 
 EXPOSE 8050
 CMD ["python", "-m", "openfahrplan"]
