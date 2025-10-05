@@ -1,0 +1,8 @@
+services:
+  openfahrplan:
+    build: .
+    ports:
+      - "8050:8050"
+    environment:
+      # Set openai api key to use AI to parse live service disruptions, leave empty to use mock data.
+      OPENAI_API_KEY: ""

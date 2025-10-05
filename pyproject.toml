@@ -1,0 +1,26 @@
+[project]
+name = "openfahrplan"
+version = "0.1.0"
+description = "OpenFahrplan"
+authors = [
+    {name = "Daniel Richter",email = "me@danielrichter.codes"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dotenv (>=0.9.9,<0.10.0)",
+    "pandas (>=2.3.3,<3.0.0)",
+    "gtfs-kit (>=11.0.0,<12.0.0)",
+    "rapidfuzz (>=3.14.1,<4.0.0)",
+    "dash (>=3.2.0,<4.0.0)",
+    "requests (>=2.32.5,<3.0.0)",
+    "beautifulsoup4 (>=4.14.2,<5.0.0)",
+    "openai (>=2.1.0,<3.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "openfahrplan", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

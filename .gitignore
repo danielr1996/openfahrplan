@@ -1,0 +1,4 @@
+.venv
+hack
+.idea/
+.env
