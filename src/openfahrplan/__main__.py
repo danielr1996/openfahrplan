@@ -7,8 +7,9 @@ app.layout = html.Div([
     # html.H1(id="heading", children='OpenFahrplan', style={'textAlign': 'center'}),
     html.Nav(className="m-4",children=[
         html.Ul(className="flex flex-row gap-4", children=[
-            html.Li([dcc.Link("Übersicht", href="/")]),
-            html.Li([dcc.Link("Alle Störungen", href="/disruptions")]),
+            html.Li([dcc.Link("Linien", href="/")]),
+            html.Li([dcc.Link("Haltestellen", href="/stations")]),
+            html.Li([dcc.Link("Störungen", href="/disruptions")]),
         ])
     ]),
     html.Hr(),

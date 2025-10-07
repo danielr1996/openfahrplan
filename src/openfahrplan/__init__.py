@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from openfahrplan.lib.gtfs import load_feed
+from openfahrplan.lib.gtfs import load_feed, gtfs_build_graph
 import pandas as pd
 
 pd.set_option("display.max_rows", None)
@@ -11,4 +11,5 @@ load_dotenv()
 
 feed = load_feed()
 timetable = feed.stops.merge(feed.stop_times).merge(feed.trips).merge(feed.routes)
-__all__ = ["feed","timetable"]
+graph,coords = gtfs_build_graph(feed)
+__all__ = ["feed","timetable","graph"]
