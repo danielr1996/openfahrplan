@@ -7,7 +7,7 @@ import gtfs_kit as gk
 def load_feed():
     base = Path(os.getenv("OPENFAHRPLAN_DATA_DIR", Path.cwd() / "data"))
     # TODO: handle conflicting ids across multiple gtfs datasets
-    return gk.read_feed(base / "gtfs" / "vgn" / "GTFS.zip",dist_units="km")
+    return gk.read_feed(base / "gtfs" / "vgn.zip",dist_units="km")
 
 def gtfs_find_station(feed, query: str):
     """

@@ -1,49 +1,19 @@
-from dotenv import load_dotenv
-load_dotenv()
-
-import os
-
-from openfahrplan.lib.gtfs import load_feed
-from openfahrplan.lib.display import zoom_from_bounds
-from openfahrplan.lib.disruptions import gtfs_get_disruptions
 from dash import dcc, html
 import dash
-import plotly.express as px
 
-feed = load_feed()
-disruptions = gtfs_get_disruptions(feed)
-stops = feed.stops.merge(disruptions)
-stops["label"] = stops["disruptions"].apply(
-    lambda arr: "Störungen: " + ", ".join(map(str, arr)) if isinstance(arr, (list, tuple)) else "Störungen: " + str(arr)
-)
-fig = px.scatter_map(
-    stops,
-    lat="stop_lat",
-    lon="stop_lon",
-    hover_name="label",
-    text="stop_name",
-    zoom=zoom_from_bounds(stops),
-    color="color",
-    color_discrete_map="identity",
-    map_style="carto-positron" # basic, carto-positron, carto-darkmatter
-)
-
-fig.update_traces(marker=dict(size=15))
-fig.update_layout(
-    showlegend=True,
-    coloraxis_showscale=True,
-    margin=dict(t=0, b=0, l=0, r=0)
-)
-
-app = dash.Dash(__name__)
-app.title = "OpenFahrplan"
-app._favicon = "favicon.png"
-app.layout = html.Div(
-    style={"height": "100vh"},
-    children=[
-        dcc.Graph(figure=fig, style={"height": "100%"},config={"displayModeBar": False})
-    ]
-)
+app = dash.Dash(__name__, use_pages=True, title="OpenFahrplan",external_stylesheets=["https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"])
+app._favicon = "favicon3.png"
+app.layout = html.Div([
+    # html.H1(id="heading", children='OpenFahrplan', style={'textAlign': 'center'}),
+    html.Nav(className="m-4",children=[
+        html.Ul(className="flex flex-row gap-4", children=[
+            html.Li([dcc.Link("Übersicht", href="/")]),
+            html.Li([dcc.Link("Alle Störungen", href="/disruptions")]),
+        ])
+    ]),
+    html.Hr(),
+    dash.page_container,
+])
 
 if __name__ == "__main__":
     app.run(

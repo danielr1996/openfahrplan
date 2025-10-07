@@ -2,11 +2,13 @@
 import re
 import math
 
+import pandas as pd
+
 route_colors = {
     "U1": "#114273",
     "U2": "#fa0004",
     "U3": "#227e7f",
-    "RE/RB": "#03643b",
+    # "RE/RB": "#03643b",
     "S1": "#650000",
     "S2": "#86c423",
     "S3": "#ff6600",
@@ -54,7 +56,19 @@ def get_route_color(short_name: str) -> str:
         return "#03643b"
     return "#c02032"  # default
 
+ROUTE_TYPE_LABELS = {
+    0: "Tram",
+    1: "U-Bahn",
+    2: "Zug",
+    3: "Bus",
+    4: "Fähre",
+    5: "Cable Car",
+    6: "Gondel",
+    7: "Funicular"
+}
 
+def get_route_type_label(route_type: int) -> str:
+    return ROUTE_TYPE_LABELS.get(route_type, f"Other({route_type})")
 
 
 def zoom_from_bounds(stops,padding=0.1):
@@ -65,4 +79,27 @@ def zoom_from_bounds(stops,padding=0.1):
     span = max(lat_span, lon_span)
 
     zoom = math.log2(360.0 / span)
-    return max(0, min(20, zoom))
+    center = dict(lat=stops["stop_lat"].mean(), lon=stops["stop_lon"].mean())
+    return max(0, min(20, zoom)), center
+
+def sort_route_names(routes):
+    df = pd.DataFrame({"route": routes})
+    df[["prefix", "number", "suffix"]] = df["route"].str.extract(r"^([^\d]*)(\d*)(.*)$")
+    df["number"] = pd.to_numeric(df["number"], errors="coerce")
+
+    df = df.sort_values(
+        by=["prefix", "number", "suffix"],
+        key=lambda col: col.astype(str).str.lower() if col.name != "number" else col,
+        na_position="last",
+        ignore_index=True,
+    )
+
+    routes_sorted = df.apply(
+        lambda row: (
+                str(row["prefix"]) +
+                ("" if pd.isna(row["number"]) else str(int(row["number"]))) +
+                str(row["suffix"])
+        ),
+        axis=1
+    ).tolist()
+    return routes_sorted
