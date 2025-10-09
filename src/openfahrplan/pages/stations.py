@@ -2,7 +2,7 @@ import dash
 from dash import html, dcc, register_page, Output, Input
 import plotly.graph_objects as go
 from dash.exceptions import PreventUpdate
-from openfahrplan.lib.display import zoom_from_bounds
+from openfahrplan.lib.display import zoom_from_bounds, map_style
 from openfahrplan.lib.gtfs import gtfs_find_related_stops, gtfs_find_station
 from openfahrplan import feed
 
@@ -20,7 +20,8 @@ layout = html.Div(
             ),
 
         ], style={"display": "flex", "gap": "12px", "alignItems": "end"}),
-        html.Div(id="stations-graph-container", style={"height": "100%"}),
+        dcc.Loading(overlay_style={"height": "100%"}, parent_style={"height": "100%"}, style={"height": "100%"},
+                    id="loading", children=[html.Div(id="stations-graph-container", style={"height": "100%"})], type="default")
 
     ]
 )
@@ -55,11 +56,11 @@ def update_output(station):
         mode="markers",
         text=stops["stop_name"],
         hoverinfo="text",
-        marker=dict(color="gray", size=10)
+        marker=dict(size=map_style["marker_size"], color=map_style["marker_color"]),
     ))
     fig.update_layout(
         map=dict(zoom=zoom, center=center),
         margin=dict(l=0, r=0, t=0, b=0),
-        map_style="carto-voyager-nolabels",
+        map_style=map_style["layer_style"],
     )
     return dcc.Graph(figure=fig, style={"height": "100%"}, config={"displayModeBar": False})

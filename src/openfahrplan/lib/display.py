@@ -2,6 +2,14 @@
 import pandas as pd
 import math, re
 
+map_style = {
+    "marker_size": 10,
+    "marker_color":"#666666",
+    "line_width":4,
+    "line_color":"#666666",
+    "layer_style": "carto-voyager",
+}
+
 route_colors = {
     "U1": "#114273",
     "U2": "#fa0004",
@@ -51,6 +59,8 @@ def get_route_color(short_name: str) -> str:
         return "#03643b"
     if re.match(r"^RB", short_name):
         return "#03643b"
+    if re.match(r"^IC", short_name):
+        return "#787878"
     return "#c02032"  # default
 
 ROUTE_TYPE_LABELS = {

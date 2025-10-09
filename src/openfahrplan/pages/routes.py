@@ -4,7 +4,7 @@ from dash import html, dcc, register_page
 from openfahrplan import  timetable
 from urllib.parse import unquote
 import pandas as pd
-from openfahrplan.lib.display import zoom_from_bounds, get_route_color
+from openfahrplan.lib.display import zoom_from_bounds, get_route_color, map_style
 
 register_page(__name__, path_template="/routes/<route_short_name>")
 
@@ -21,13 +21,14 @@ def layout(route_short_name=None, **kwargs):
         text=stops["stop_name"],
         name="Haltestellen",
         hoverinfo="text",
-        marker=dict(color="gray",size=10)
+        marker=dict(size=map_style["marker_size"], color=map_style["marker_color"]),
+
     ))
     fig.update_layout(
         map=dict(zoom=zoom,center=center),
         margin=dict(l=0, r=0, t=0, b=0),
         legend=dict(itemsizing="constant"),
-        map_style="carto-positron"
+        map_style=map_style["layer_style"]
     )
     route["dep_td"] = pd.to_timedelta(route["departure_time"], errors="coerce")
     trip_order = (
@@ -53,7 +54,7 @@ def layout(route_short_name=None, **kwargs):
             lon=g["stop_lon"],
             mode="lines",
             name=f"{dep_wrapped} - {arr_wrapped} ({(pd.to_datetime('2262-04-11') + diff).strftime('%H:%M')})",
-            line=dict(color=get_route_color(route_short_name), width=2),
+            line=dict(color=get_route_color(route_short_name), width=map_style["line_width"]),
             hoverinfo="skip",
         ))
     return html.Div([
