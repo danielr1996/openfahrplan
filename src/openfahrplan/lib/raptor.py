@@ -113,7 +113,7 @@ class RaptorIndex:
                     foot[ia].append((ib, int(w)))
         idx.foot = foot
         return idx
-@timed
+
 def raptor_route(index: RaptorIndex, start_stop_id, end_stop_id,
                  departure_time="08:00:00", max_rounds=8):
     if index.nstops == 0:

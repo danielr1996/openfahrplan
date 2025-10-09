@@ -13,7 +13,9 @@ layout = html.Div(
         html.Div([
             dcc.Dropdown(
                 id="station",
-                placeholder="Von...",
+                value="de:09564:510:1:1",
+                search_value="Nürnberg Hbf",
+                placeholder="Haltestelle...",
                 style={"minWidth": 400},
             ),
 
@@ -40,7 +42,6 @@ def update_stop_options(search_value):
 @dash.callback(
     Output("stations-graph-container", "children"),
     Input("station", "value"),
-    config_prevent_initial_callbacks=True
 )
 def update_output(station):
     if not station:
