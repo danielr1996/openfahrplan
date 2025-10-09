@@ -9,6 +9,7 @@ app.layout = html.Div([
             html.Li([dcc.Link("Linien", href="/lines")]),
             html.Li([dcc.Link("Haltestellen", href="/stations")]),
             html.Li([dcc.Link("Verbindungen", href="/connection")]),
+            html.Li([dcc.Link("Störungen", href="/disruptions")]),
         ])
     ]),
     html.Hr(),

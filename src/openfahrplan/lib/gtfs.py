@@ -1,11 +1,16 @@
+import requests
 import unicodedata, re
 from rapidfuzz import process, fuzz
 import pandas as pd
 from pathlib import Path
+from google.transit import gtfs_realtime_pb2 as gtfs_rt
+
+
 
 class GTFSFeed:
 
     def __init__(self, data: Path,name: str = "vgn"):
+        self._data = data
         # TODO: handle conflicting ids across multiple gtfs datasets
         folder = data / "parquet" / name
         glob = folder.glob("*.parquet")
@@ -151,3 +156,59 @@ class GTFSFeed:
         if len(same_name) > 0:
             stops = pd.concat([stops, same_name], ignore_index=True)
         return stops.drop_duplicates()
+
+    def _load_feed(self,feed_url: str="https://realtime.gtfs.de/realtime-free.pb"):
+        # r = requests.get(feed_url, timeout=15)
+        # r.raise_for_status()
+        # return r
+        class ResponseStub:
+            def __init__(self, content: bytes):
+                self.content = content
+
+        with open(self._data / "feed.pb", "rb") as f:
+            r = ResponseStub(f.read())
+            return r
+    def gtfs_get_disruptions(feed):
+        r = feed._load_feed()
+        f = gtfs_rt.FeedMessage()
+        f.ParseFromString(r.content)
+        tu_rows, vp_rows, al_rows = [], [], []
+
+        for e in f.entity:
+            if e.HasField("trip_update"):
+                t = e.trip_update
+                trip = t.trip.trip_id
+                route = t.trip.route_id
+                for stu in t.stop_time_update:
+                    tu_rows.append({
+                        "entity_id": e.id,
+                        "trip_id": trip,
+                        "route_id": route,
+                        "stop_id": stu.stop_id,
+                        "seq": stu.stop_sequence,
+                        "arr_time": stu.arrival.time if stu.arrival.HasField("time") else None,
+                        "dep_time": stu.departure.time if stu.departure.HasField("time") else None,
+                        "schedule_rel": t.timestamp if t.HasField("timestamp") else None,
+                    })
+            if e.HasField("alert"):
+                a = e.alert
+                header = a.header_text.translation[0].text if a.header_text.translation else ""
+                for ie in a.informed_entity:
+                    al_rows.append({
+                        "entity_id": e.id,
+                        "stop_id": ie.stop_id or None,
+                        "route_id": ie.route_id or None,
+                        "trip_id": ie.trip.trip_id or None,
+                        "agency_id": ie.agency_id or None,
+                        "effect": int(a.effect),
+                        "cause": int(a.cause),
+                        "header": header,
+                    })
+
+        out = {}
+        if tu_rows: out["trip_updates"] = pd.DataFrame.from_records(tu_rows)
+        if al_rows: out["alerts"] = pd.DataFrame.from_records(al_rows)
+        dfs = out
+        alerts = dfs.get("alerts", pd.DataFrame(columns=["stop_id","header","cause","effect"]))
+        alerts = alerts[alerts["stop_id"].notna()][["stop_id","header","cause","effect"]]
+        return alerts

@@ -8,6 +8,8 @@ from openfahrplan.lib.display import zoom_from_bounds, build_route_map_data
 from openfahrplan.lib.raptor import raptor_route
 from openfahrplan import feed, raptor_index
 from openfahrplan.lib.display import map_style
+from openfahrplan.pages.disruptions import map_disruptions
+
 register_page(__name__, path="/connection")
 layout = html.Div(
     style={"height": "100vh"},
@@ -79,19 +81,33 @@ def update_output(stop_from, stop_to):
                 lat=seg["lat"], lon=seg["lon"],
                 mode="lines",
                 line=dict(color=seg["color"], width=map_style["line_width"]),
+                # hoverinfo="skip",
+                text=[seg["name"]]*len(seg["lat"]),
+                hovertemplate="%{text}<extra></extra>",
+                name="Walk",
                 showlegend=False
             ))
 
-    sp = data["stops"]
-    if not sp.empty:
+    all_stops = data["stops"]
+    alerts = feed.gtfs_get_disruptions()
+    affected_stops = map_disruptions(all_stops, alerts)
+    if not all_stops.empty:
         fig.add_trace(go.Scattermap(
-            lat=sp["stop_lat"], lon=sp["stop_lon"],
+            lat=all_stops["stop_lat"], lon=all_stops["stop_lon"],
             mode="markers",
             marker=dict(size=map_style["marker_size"], color=map_style["marker_color"]),
-            text=sp["hover"],
+            text=all_stops["hover"],
             hoverinfo="text",
             showlegend=False
         ))
+    fig.add_trace(go.Scattermap(
+        lat=affected_stops["stop_lat"], lon=affected_stops["stop_lon"],
+        mode="markers",
+        marker=dict(size=map_style["marker_size"]-2, color="#f73c6a"),
+        text=affected_stops["hover"],
+        hoverinfo="text",
+        showlegend=False
+    ))
 
     fig.update_layout(map_style=map_style["layer_style"],
                       margin=dict(l=0, r=0, t=0, b=0),
