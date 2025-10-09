@@ -1,43 +1,64 @@
-from dash import html, dcc, register_page
-from openfahrplan.lib.display import get_route_type_label, sort_route_names, get_route_color, zoom_from_bounds
-import pandas as pd
+import dash
+from dash import html, dcc, register_page, Output, Input
 import plotly.graph_objects as go
+from dash.exceptions import PreventUpdate
+from openfahrplan.lib.display import zoom_from_bounds
+from openfahrplan.lib.gtfs import gtfs_find_related_stops, gtfs_find_station
 from openfahrplan import feed
+
 register_page(__name__, path="/stations")
-stops = feed.stops
-def combo_label(row):
-    has_parent = pd.notna(row["parent_station"])
-    has_type = float(row["location_type"]) > 0 if pd.notna(row["location_type"]) else False
-    if not has_type and not has_parent: return "Stop"
-    if not has_type and has_parent:     return "Platform"
-    if has_type and not has_parent:     return "Station"
-    return "-1"
-
-stops["combo_label"] = stops.apply(combo_label, axis=1)
-
-colors = {
-    "Stop": "#1f77b4",
-    "Platform": "#2ca02c",
-    "Station": "#ff7f0e",
-}
-zoom,center = zoom_from_bounds(stops)
-fig = go.Figure()
-
-for label, group in stops.groupby("combo_label"):
-    fig.add_trace(go.Scattermap(
-        lat=group["stop_lat"],
-        lon=group["stop_lon"],
-        mode="markers",
-        marker=dict(color=colors[label], size=10),
-        text=group["stop_name"],
-        name=label,
-        hoverinfo="text"
-    ))
-
-fig.update_layout(map=dict(zoom=zoom,center=center),map_style="carto-positron", margin=dict(l=0,r=0,t=0,b=0))
 layout = html.Div(
     style={"height": "100vh"},
     children=[
-        dcc.Graph(figure=fig, style={"height": "100%"}, config={"displayModeBar": False})
+        html.Div([
+            dcc.Dropdown(
+                id="station",
+                placeholder="Von...",
+                style={"minWidth": 400},
+            ),
+
+        ], style={"display": "flex", "gap": "12px", "alignItems": "end"}),
+        html.Div(id="stations-graph-container", style={"height": "100%"}),
+
     ]
 )
+
+
+@dash.callback(
+    Output("station", "options"),
+    Input("station", "search_value"),
+)
+def update_stop_options(search_value):
+    if not search_value:
+        raise PreventUpdate
+    res = (gtfs_find_station(feed, search_value)[
+               ["stop_id", "stop_name", "location_type", "parent_station", "score"]].rename(
+        columns={"stop_name": "label", "stop_id": "value"}))
+    return res[["value", "label"]].to_dict("records")
+
+
+@dash.callback(
+    Output("stations-graph-container", "children"),
+    Input("station", "value"),
+    config_prevent_initial_callbacks=True
+)
+def update_output(station):
+    if not station:
+        raise PreventUpdate
+    stops = gtfs_find_related_stops(feed, station)
+    fig = go.Figure()
+    zoom, center = zoom_from_bounds(stops)
+    fig.add_trace(go.Scattermap(
+        lat=stops["stop_lat"],
+        lon=stops["stop_lon"],
+        mode="markers",
+        text=stops["stop_name"],
+        hoverinfo="text",
+        marker=dict(color="gray", size=10)
+    ))
+    fig.update_layout(
+        map=dict(zoom=zoom, center=center),
+        margin=dict(l=0, r=0, t=0, b=0),
+        map_style="carto-voyager-nolabels",
+    )
+    return dcc.Graph(figure=fig, style={"height": "100%"}, config={"displayModeBar": False})

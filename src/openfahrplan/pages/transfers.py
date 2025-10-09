@@ -1,20 +1,11 @@
 from dash import html, dcc, register_page
-from urllib.parse import quote
-from openfahrplan import feed
-from openfahrplan.lib.display import get_route_type_label, sort_route_names, get_route_color, zoom_from_bounds
-from openfahrplan import graph
-from openfahrplan.lib.gtfs import gtfs_find_station
-import networkx as nx
-import pandas as pd
 import plotly.graph_objects as go
 from openfahrplan import feed
 import numpy as np
 #
 # You found a secret page. Keep it a secret!
 #
-register_page(__name__, path="/explore")
-# origin = gtfs_find_station(feed, "Gustav Adolf Straße")["stop_id"]
-# dest = gtfs_find_station(feed, "Selb")["stop_id"]
+register_page(__name__, path="/transfers")
 st = feed.stops[["stop_id","stop_lat","stop_lon"]].rename(
     columns={"stop_lat":"lat","stop_lon":"lon"}
 )

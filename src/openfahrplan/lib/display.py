@@ -103,3 +103,12 @@ def sort_route_names(routes):
         axis=1
     ).tolist()
     return routes_sorted
+
+def location_type_label(row):
+    has_parent = pd.notna(row["parent_station"])
+    has_type = float(row["location_type"]) > 0 if pd.notna(row["location_type"]) else False
+    if not has_type and not has_parent: return "Stop"
+    if not has_type and has_parent:     return "Platform"
+    if has_type and not has_parent:     return "Station"
+    return "-1"
+
