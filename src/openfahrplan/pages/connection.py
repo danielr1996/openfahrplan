@@ -1,9 +1,10 @@
+import logging
+
 import dash
 from dash import html, dcc, register_page, Output, Input
 import plotly.graph_objects as go
 from dash.exceptions import PreventUpdate
 from openfahrplan.lib.display import zoom_from_bounds, build_route_map_data
-from openfahrplan.lib.gtfs import gtfs_find_station
 from openfahrplan.lib.raptor import raptor_route
 from openfahrplan import feed, raptor_index
 from openfahrplan.lib.display import map_style
@@ -41,7 +42,7 @@ layout = html.Div(
 def update_stop_options(search_value):
     if not search_value:
         raise PreventUpdate
-    res = (gtfs_find_station(feed, search_value)[
+    res = (feed.gtfs_find_station(search_value)[
                ["stop_id", "stop_name", "location_type", "parent_station", "score"]].rename(
         columns={"stop_name": "label", "stop_id": "value"}))
     return res[["value", "label"]].to_dict("records")
@@ -59,6 +60,7 @@ def update_output(stop_from, stop_to):
     res = raptor_route(raptor_index, stop_from, stop_to)
 
     if res is None:
+        logging.warning("connections callbacked prevented update because raptor didnt return a result")
         raise PreventUpdate
     data = build_route_map_data(feed, res)
     zoom, center = zoom_from_bounds(data["stops"])

@@ -1,7 +1,5 @@
 import pytest
 from openfahrplan import feed
-from openfahrplan.lib.gtfs import gtfs_find_station, gtfs_reachable_transfers, gtfs_find_siblings, \
-    gtfs_find_matching_name_stops
 
 
 @pytest.mark.parametrize(
@@ -15,8 +13,7 @@ from openfahrplan.lib.gtfs import gtfs_find_station, gtfs_reachable_transfers, g
     ],
 )
 def test_gtfs_find_station(search,limit,expected):
-    actual = gtfs_find_station(feed, search, limit=limit)
-    print(actual)
+    actual = feed.gtfs_find_station(search, limit=limit)
     assert actual["stop_id"].tolist() == expected
 
 @pytest.mark.parametrize(
@@ -26,7 +23,7 @@ def test_gtfs_find_station(search,limit,expected):
     ],
 )
 def test_gtfs_reachable_transfers(inp,expected):
-    actual = gtfs_reachable_transfers(feed,inp)
+    actual = feed.gtfs_reachable_transfers(inp)
     assert actual["stop_id"].tolist() == expected
 
 @pytest.mark.parametrize(
@@ -36,7 +33,7 @@ def test_gtfs_reachable_transfers(inp,expected):
     ],
 )
 def test_gtfs_find_siblings(inp,expected):
-    actual = gtfs_find_siblings(feed,inp)
+    actual = feed.gtfs_find_siblings(inp)
     assert actual["stop_id"].tolist() == expected
 
 @pytest.mark.parametrize(
@@ -46,6 +43,5 @@ def test_gtfs_find_siblings(inp,expected):
     ],
 )
 def test_gtfs_find_matching_name_stops(inp,expected):
-    actual = gtfs_find_matching_name_stops(feed,inp)
+    actual = feed.gtfs_find_matching_name_stops(inp)
     assert actual["stop_id"].tolist() == expected
-

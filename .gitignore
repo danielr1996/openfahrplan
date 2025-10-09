@@ -3,4 +3,5 @@ hack
 .idea/
 .env
 **/__pycache__/
-data/gtfs/de.zip
+data/gtfs/
+data/parquet/gtfsde
