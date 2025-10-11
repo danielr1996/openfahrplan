@@ -1,0 +1,5 @@
+services:
+  openfahrplan:
+    build: .
+    ports:
+      - "8050:8050"

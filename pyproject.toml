@@ -1,0 +1,32 @@
+[project]
+name = "openfahrplan"
+version = "0.1.0"
+description = "OpenFahrplan"
+authors = [
+    {name = "Daniel Richter",email = "me@danielrichter.codes"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dotenv (>=0.9.9,<0.10.0)",
+    "pandas (>=2.3.3,<3.0.0)",
+    "rapidfuzz (>=3.14.1,<4.0.0)",
+    "dash (>=3.2.0,<4.0.0)",
+    "requests (>=2.32.5,<3.0.0)",
+    "beautifulsoup4 (>=4.14.2,<5.0.0)",
+    "openai (>=2.1.0,<3.0.0)",
+    "pytest (>=8.4.2,<9.0.0)",
+    "networkx (>=3.5,<4.0)",
+    "gtfs-realtime-bindings (>=1.0.0,<2.0.0)",
+    "pyarrow (>=21.0.0,<22.0.0)",
+]
+
+[tool.poetry]
+packages = [{include = "openfahrplan", from = "src"}]
+
+[tool.poetry.scripts]
+generate = "openfahrplan:generate_feed_mapping"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

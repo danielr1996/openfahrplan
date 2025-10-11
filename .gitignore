@@ -1,0 +1,7 @@
+.venv
+hack
+.idea/
+.env
+**/__pycache__/
+data/gtfs/
+data/parquet/gtfsde
