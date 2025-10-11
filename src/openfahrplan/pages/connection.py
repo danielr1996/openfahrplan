@@ -12,11 +12,16 @@ from openfahrplan.lib.display import map_style
 from openfahrplan.lib.gtfs import map_disruptions
 
 register_page(__name__, path="/connection")
+times = [
+    {"label": f"{h:02d}:{m:02d}", "value": f"{h:02d}:{m:02d}:00"}
+    for h in range(24)
+    for m in (0, 30)
+]
 layout = html.Div(
     className="h-full flex flex-col",
     children=[
         html.Div(
-            className="flex gap-3 items-end flex-wrap",
+            className="flex gap-3 items-end flex-wrap p-2",
             children=[
                 dcc.Dropdown(
                     id={"type": "station", "key": "from"},
@@ -32,6 +37,13 @@ layout = html.Div(
                     search_value="Nürnberg Plärrer",
                     style={"minWidth": 400}
                 ),
+                dcc.Dropdown(
+                    id="time_dropdown",
+                    options=times,
+                    value="08:00:00",
+                    clearable=False,
+                    style={"width": 100}
+                )
             ], ),
 
         dcc.Loading(
@@ -62,12 +74,13 @@ def update_stop_options(search_value):
     Output("connection-loading", "children"),
     Input({"type": "station", "key": "from"}, "value"),
     Input({"type": "station", "key": "to"}, "value"),
+    Input("time_dropdown", "value"),
 )
-def update_output(stop_from, stop_to):
+def update_output(stop_from, stop_to,time):
     if not stop_from or not stop_to:
         raise PreventUpdate
 
-    res = raptor_route(raptor_index, stop_from, stop_to)
+    res = raptor_route(raptor_index, stop_from, stop_to,departure_time=time)
 
     if res is None:
         logging.warning("connections callbacked prevented update because raptor didnt return a result")

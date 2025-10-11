@@ -12,7 +12,7 @@ layout = html.Div(
     className="h-full",
     children=[
         html.Div(
-            className="flex gap-3 items-end flex-wrap",
+            className="flex gap-3 items-end flex-wrap p-2",
             children=[
                 dcc.Dropdown(
                     id="station",
